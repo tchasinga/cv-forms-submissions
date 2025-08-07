@@ -48,7 +48,6 @@ $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
 
 try {
     $pdo->exec($sql);
-    echo "Table created successfully!";
 } catch(PDOException $e) {
     die("Table creation failed: " . $e->getMessage());
 }
