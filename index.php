@@ -412,24 +412,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label>Years of Work Experience</label>
-                        <div class="radio-group">
-                            <div class="radio-option">
-                                <input type="radio" id="exp_less_1" name="work_experience" value="Less than 1 year">
-                                <label for="exp_less_1">Less than 1 year</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="exp_1_3" name="work_experience" value="1–3 years">
-                                <label for="exp_1_3">1–3 years</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="exp_3_5" name="work_experience" value="3–5 years">
-                                <label for="exp_3_5">3–5 years</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="exp_5_plus" name="work_experience" value="5+ years">
-                                <label for="exp_5_plus">5+ years</label>
-                            </div>
-                        </div>
+                        <select name="" id="work_experience" name="work_experience">
+                            <option value="">Select Work Experience</option>
+                            <option value="0–5 years KES 3,000">0–5 years KES 3,000</option>
+                            <option value="6 – 15 years KES 6,000">6 – 15 years KES 6,000</option>
+                            <option value="Above 15 years KES 8,000">Above 15 years KES 8,000</option>
+                            <option value="Stand Alone cover letter KES 1,500 (Without CV)">Stand Alone cover letter KES 1,500 (Without CV)</option>
+                            <option value="Standard Fees KES 4,000">Standard Fees KES 4,000</option>
+                            <option value="Interview Preparation (1Hr Zoom Meeting) KES 4,000">Interview Preparation (1Hr Zoom Meeting) KES 4,000</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">

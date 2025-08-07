@@ -12,7 +12,7 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Create table if it doesn't exist
+
 $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
