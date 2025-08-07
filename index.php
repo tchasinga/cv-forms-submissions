@@ -356,20 +356,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label>Preferred Contact Method</label>
-                        <div class="radio-group">
-                            <div class="radio-option">
-                                <input type="radio" id="contact_email" name="preferred_contact" value="Email" checked>
-                                <label for="contact_email">Email</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="contact_phone" name="preferred_contact" value="Phone">
-                                <label for="contact_phone">Phone</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="contact_whatsapp" name="preferred_contact" value="WhatsApp">
-                                <label for="contact_whatsapp">WhatsApp</label>
-                            </div>
-                        </div>
+                        <select name="" id="preferred_contact" name="preferred_contact">
+                            <option value="">Select Preferred Contact Method</option>
+                            <option value="Email">Email</option>
+                            <option value="Phone">Phone</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
