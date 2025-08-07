@@ -34,6 +34,8 @@ $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
     target_job_role VARCHAR(255),
     cv_service_required VARCHAR(255),
     current_cv_filename VARCHAR(255),
+    payment_status ENUM('Pending', 'Paid', 'Failed', 'completed'),
+    amount_paid VARCHAR(200),
     job_description_filename VARCHAR(255),
     turnaround_time ENUM('24–48 hours (Express)', '3–5 business days', '1 week'),
     budget_range VARCHAR(100),
