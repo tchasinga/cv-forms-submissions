@@ -232,11 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
+            font-weight: lighter;
         }
 
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
+            font-weight: lighter;
         }
 
         .form-container {
@@ -607,9 +609,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <input type="hidden" name="initiate_payment" value="1">
-                    <button type="submit" class="pay-now-btn" id="payNowBtn" style="display: none;">
+                    <!-- <button type="submit" class="pay-now-btn" id="payNowBtn" style="display: none;">
                         <i class="fas fa-lock"></i> Pay Now
-                    </button>
+                    </button> -->
                 </div>
 
                 <!-- CV Service Required -->
