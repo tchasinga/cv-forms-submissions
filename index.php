@@ -206,8 +206,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
+            width: 100%;
+            padding-top: 50px;
+            padding-bottom: 50px;
         }
 
         .container {
@@ -217,7 +218,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
 
         .header {
@@ -225,6 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
             padding: 40px;
             text-align: center;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
         }
 
         .header h1 {
@@ -457,12 +459,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         @media (max-width: 768px) {
             .container {
-                margin: 10px;
-                border-radius: 15px;
+                max-width: 100%;
+                width: 100%;
             }
 
             .header {
                 padding: 30px 20px;
+
             }
 
             .header h1 {
@@ -531,7 +534,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="current_location">Current Location (City & Country)</label>
-                        <input type="text" id="current_location" name="current_location" placeholder="e.g., London, UK">
+                        <input type="text" id="current_location" name="current_location" placeholder="e.g., Kenya, Nairobi">
                     </div>
                 </div>
 
@@ -612,7 +615,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- CV Service Required -->
                 <div class="form-section">
                     <h3><i class="fas fa-tools"></i> CV Service Required (select all that apply)</h3>
-
+                    <div class="form-group">
                     <select name="cv_service_required" id="cv_service_required">
                         <option value="">Select CV Service Required</option>
                         <option value="CV Writing (Fresh Graduate)">CV Writing (Fresh Graduate)</option>
@@ -623,6 +626,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="Interview Preparation">Interview Preparation</option>
                         <option value="CV + Cover Letter + LinkedIn (Combo Package)">CV + Cover Letter + LinkedIn (Combo Package)</option>
                     </select>
+                    </div>
                 </div>
 
                 <!-- Supporting Documents -->
