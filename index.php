@@ -618,16 +618,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-section">
                     <h3><i class="fas fa-tools"></i> CV Service Required (select all that apply)</h3>
                     <div class="form-group">
-                    <select name="cv_service_required" id="cv_service_required">
-                        <option value="">Select CV Service Required</option>
-                        <option value="CV Writing (Fresh Graduate)">CV Writing (Fresh Graduate)</option>
-                        <option value="CV Update (Professional)">CV Update (Professional)</option>
-                        <option value="Cover Letter Writing">Cover Letter Writing</option>
-                        <option value="LinkedIn Profile Optimization">LinkedIn Profile Optimization</option>
-                        <option value="Career Coaching">Career Coaching</option>
-                        <option value="Interview Preparation">Interview Preparation</option>
-                        <option value="CV + Cover Letter + LinkedIn (Combo Package)">CV + Cover Letter + LinkedIn (Combo Package)</option>
-                    </select>
+                        <select name="cv_service_required" id="cv_service_required">
+                            <option value="">Select CV Service Required</option>
+                            <option value="CV Writing (Fresh Graduate)">CV Writing (Fresh Graduate)</option>
+                            <option value="CV Update (Professional)">CV Update (Professional)</option>
+                            <option value="Cover Letter Writing">Cover Letter Writing</option>
+                            <option value="LinkedIn Profile Optimization">LinkedIn Profile Optimization</option>
+                            <option value="Career Coaching">Career Coaching</option>
+                            <option value="Interview Preparation">Interview Preparation</option>
+                            <option value="CV + Cover Letter + LinkedIn (Combo Package)">CV + Cover Letter + LinkedIn (Combo Package)</option>
+                        </select>
                     </div>
                 </div>
 
