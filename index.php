@@ -356,7 +356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label>Preferred Contact Method</label>
-                        <select name="" id="preferred_contact" name="preferred_contact">
+                        <select id="preferred_contact" name="preferred_contact">
                             <option value="">Select Preferred Contact Method</option>
                             <option value="Email">Email</option>
                             <option value="Phone">Phone</option>
@@ -404,15 +404,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label>Years of Work Experience</label>
-                        <select name="" id="work_experience" name="work_experience">
-                            <option value="">Select Work Experience</option>
-                            <option value="0–5 years KES 3,000">0–5 years KES 3,000</option>
-                            <option value="6 – 15 years KES 6,000">6 – 15 years KES 6,000</option>
-                            <option value="Above 15 years KES 8,000">Above 15 years KES 8,000</option>
-                            <option value="Stand Alone cover letter KES 1,500 (Without CV)">Stand Alone cover letter KES 1,500 (Without CV)</option>
-                            <option value="Standard Fees KES 4,000">Standard Fees KES 4,000</option>
-                            <option value="Interview Preparation (1Hr Zoom Meeting) KES 4,000">Interview Preparation (1Hr Zoom Meeting) KES 4,000</option>
-                        </select>
+                        <select id="work_experience" name="work_experience">
+    <option value="">Select Work Experience</option>
+    <option value="0–5 years KES 3,000">0–5 years KES 3,000</option>
+    <option value="6 – 15 years KES 6,000">6 – 15 years KES 6,000</option>
+    <option value="Above 15 years KES 8,000">Above 15 years KES 8,000</option>
+    <option value="Stand Alone cover letter KES 1,500 (Without CV)">Stand Alone cover letter KES 1,500 (Without CV)</option>
+    <option value="Standard Fees KES 4,000">Standard Fees KES 4,000</option>
+    <option value="Interview Preparation (1Hr Zoom Meeting) KES 4,000">Interview Preparation (1Hr Zoom Meeting) KES 4,000</option>
+    <option value="Career Coaching (1Hr 30 Mins Zoom Meeting) KES 6,000">Career Coaching (1Hr 30 Mins Zoom Meeting) KES 6,000</option>
+</select>
                     </div>
                     
                     <div class="form-group">
@@ -425,32 +426,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-section">
                     <h3><i class="fas fa-tools"></i> CV Service Required (select all that apply)</h3>
                     
-                    <div class="checkbox-group">
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="cv_writing_fresh_graduate" name="cv_writing_fresh_graduate">
-                            <label for="cv_writing_fresh_graduate">CV Writing (Fresh Graduate)</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="cv_update_professional" name="cv_update_professional">
-                            <label for="cv_update_professional">CV Update (Professional)</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="cover_letter_writing" name="cover_letter_writing">
-                            <label for="cover_letter_writing">Cover Letter Writing</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="linkedin_optimization" name="linkedin_optimization">
-                            <label for="linkedin_optimization">LinkedIn Profile Optimization</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="career_coaching" name="career_coaching">
-                            <label for="career_coaching">Career Coaching / Interview Prep</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="combo_package" name="combo_package">
-                            <label for="combo_package">CV + Cover Letter + LinkedIn (Combo Package)</label>
-                        </div>
-                    </div>
+                   <select name="cv_service_required" id="cv_service_required">
+                    <option value="">Select CV Service Required</option>
+                    <option value="CV Writing (Fresh Graduate)">CV Writing (Fresh Graduate)</option>
+                    <option value="CV Update (Professional)">CV Update (Professional)</option>
+                    <option value="Cover Letter Writing">Cover Letter Writing</option>
+                    <option value="LinkedIn Profile Optimization">LinkedIn Profile Optimization</option>
+                    <option value="Career Coaching">Career Coaching</option>
+                    <option value="Interview Preparation">Interview Preparation</option>
+                    <option value="CV + Cover Letter + LinkedIn (Combo Package)">CV + Cover Letter + LinkedIn (Combo Package)</option>
+                   </select>
                 </div>
 
                 <!-- Supporting Documents -->
