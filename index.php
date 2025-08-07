@@ -678,7 +678,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="budget_range">Budget Range (Optional)</label>
-                        <input type="text" id="budget_range" name="budget_range" placeholder="e.g., $100-200, £150-300">
+                        <input type="text" id="budget_range" name="budget_range" placeholder="e.g., ksh1000-2000, ksh1500-2500, ksh3000 etc...">
                     </div>
                 </div>
 
