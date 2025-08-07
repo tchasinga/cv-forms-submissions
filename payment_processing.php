@@ -15,6 +15,7 @@ try {
 if (!$submission) {
     die("Invalid submission ID");
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
