@@ -32,12 +32,7 @@ $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
         'Career Coaching (1Hr 30 Mins Zoom Meeting) KES 6,000'
     ),
     target_job_role VARCHAR(255),
-    cv_writing_fresh_graduate BOOLEAN DEFAULT FALSE,
-    cv_update_professional BOOLEAN DEFAULT FALSE,
-    cover_letter_writing BOOLEAN DEFAULT FALSE,
-    linkedin_optimization VARCHAR(255) DEFAULT NULL,
-    career_coaching VARCHAR(255) DEFAULT NULL,
-    combo_package VARCHAR(255) DEFAULT NULL,
+    cv_service_required VARCHAR(255),
     current_cv_filename VARCHAR(255),
     job_description_filename VARCHAR(255),
     turnaround_time ENUM('24–48 hours (Express)', '3–5 business days', '1 week'),

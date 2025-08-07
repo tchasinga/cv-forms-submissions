@@ -32,16 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "INSERT INTO cv_submissions (
             full_name, email, phone, preferred_contact, current_location,
             education_level, field_of_study, current_job_title, work_experience,
-            target_job_role, cv_writing_fresh_graduate, cv_update_professional,
-            cover_letter_writing, linkedin_optimization, career_coaching,
-            combo_package, current_cv_filename, job_description_filename,
+            target_job_role, cv_service_required, current_cv_filename, job_description_filename,
             turnaround_time, budget_range, additional_notes
         ) VALUES (
             :full_name, :email, :phone, :preferred_contact, :current_location,
             :education_level, :field_of_study, :current_job_title, :work_experience,
-            :target_job_role, :cv_writing_fresh_graduate, :cv_update_professional,
-            :cover_letter_writing, :linkedin_optimization, :career_coaching,
-            :combo_package, :current_cv_filename, :job_description_filename,
+            :target_job_role, :cv_service_required, :current_cv_filename, :job_description_filename,
             :turnaround_time, :budget_range, :additional_notes
         )";
         
@@ -57,12 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':current_job_title' => $_POST['current_job_title'],
             ':work_experience' => $_POST['work_experience'],
             ':target_job_role' => $_POST['target_job_role'],
-            ':cv_writing_fresh_graduate' => isset($_POST['cv_writing_fresh_graduate']) ? 1 : 0,
-            ':cv_update_professional' => isset($_POST['cv_update_professional']) ? 1 : 0,
-            ':cover_letter_writing' => isset($_POST['cover_letter_writing']) ? 1 : 0,
-            ':linkedin_optimization' => isset($_POST['linkedin_optimization']) ? 1 : 0,
-            ':career_coaching' => isset($_POST['career_coaching']) ? 1 : 0,
-            ':combo_package' => isset($_POST['combo_package']) ? 1 : 0,
+            ':cv_service_required' => $_POST['cv_service_required'],
             ':current_cv_filename' => $current_cv_filename,
             ':job_description_filename' => $job_description_filename,
             ':turnaround_time' => $_POST['turnaround_time'],
