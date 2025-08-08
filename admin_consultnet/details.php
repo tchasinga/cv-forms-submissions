@@ -35,199 +35,227 @@ try {
     <title>Submission Details - CV Submissions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #e0e0e0;
+            --hover-color: #f5f5f5;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --badge-opacity: 0.9;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.2s ease;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 18px 0;
+            box-shadow: var(--header-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .header h1 {
-            font-size: 1.8rem;
-            font-weight: 300;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
         .back-btn, .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 8px 16px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
-            transition: background 0.3s ease;
-            margin-left: 10px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
         .back-btn:hover, .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background-color: var(--hover-color);
+            border-color: var(--text-color);
         }
 
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 0 24px;
         }
 
         .details-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
             overflow: hidden;
         }
 
         .card-header {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .card-header h2 {
-            color: #333;
-            font-size: 1.5rem;
-            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .status-badge {
             padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-failed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-completed {
-            background: #d1ecf1;
-            color: #0c5460;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            opacity: var(--badge-opacity);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         .details-content {
-            padding: 30px;
+            padding: 24px;
         }
 
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .section h3 {
-            color: #667eea;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
         }
 
         .info-item {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .info-label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .info-value {
-            color: #333;
-            font-size: 1rem;
+            font-size: 0.95rem;
             word-break: break-word;
+            line-height: 1.5;
         }
 
         .file-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-top: 10px;
         }
 
         .file-link {
-            display: inline-block;
-            background: #667eea;
-            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            color: var(--text-color);
             padding: 8px 12px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
-            margin-right: 10px;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            transition: background 0.3s ease;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
         }
 
         .file-link:hover {
-            background: #5a6fd8;
+            background-color: var(--hover-color);
+            border-color: var(--text-color);
         }
 
         .file-link.disabled {
-            background: #6c757d;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .file-link.disabled:hover {
-            background: #6c757d;
-        }
-
         .notes-section {
-            background: #f8f9fa;
-            padding: 20px;
+            background: var(--hover-color);
+            padding: 16px;
             border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .notes-section h4 {
-            color: #495057;
-            margin-bottom: 10px;
+            margin-top: 16px;
+            border: 1px solid var(--border-color);
         }
 
         .notes-content {
-            color: #666;
             line-height: 1.6;
+            font-size: 0.95rem;
         }
 
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
-                gap: 15px;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
             }
             
             .info-grid {
@@ -235,7 +263,27 @@ try {
             }
             
             .details-content {
-                padding: 20px;
+                padding: 16px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .file-links {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .file-link {
+                width: 100%;
             }
         }
     </style>
@@ -243,10 +291,11 @@ try {
 <body>
     <div class="header">
         <div class="header-content">
-            <h1><i class="fas fa-user"></i> Submission Details</h1>
-            <div>
+            <h1><i class="fas fa-file-alt"></i> Submission Details</h1>
+            <div class="header-actions">
+                <span class="welcome-text">Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
                 <a href="dashboard.php" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <a href="logout.php" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -258,8 +307,8 @@ try {
     <div class="container">
         <div class="details-card">
             <div class="card-header">
-                <h2>Submission #<?php echo $submission['id']; ?> - <?php echo htmlspecialchars($submission['full_name']); ?></h2>
-                <span class="status-badge status-<?php echo strtolower($submission['payment_status']); ?>">
+                <h2>#<?php echo $submission['id']; ?> - <?php echo htmlspecialchars($submission['full_name']); ?></h2>
+                <span class="status-badge">
                     <?php echo htmlspecialchars($submission['payment_status']); ?>
                 </span>
             </div>
@@ -352,7 +401,9 @@ try {
                                 <i class="fas fa-download"></i> Current CV
                             </a>
                         <?php else: ?>
-                            <span class="file-link disabled">No CV uploaded</span>
+                            <span class="file-link disabled">
+                                <i class="fas fa-times-circle"></i> No CV uploaded
+                            </span>
                         <?php endif; ?>
 
                         <?php if (!empty($submission['job_description_filename'])): ?>
@@ -361,7 +412,9 @@ try {
                                 <i class="fas fa-download"></i> Job Description
                             </a>
                         <?php else: ?>
-                            <span class="file-link disabled">No job description uploaded</span>
+                            <span class="file-link disabled">
+                                <i class="fas fa-times-circle"></i> No job description uploaded
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>

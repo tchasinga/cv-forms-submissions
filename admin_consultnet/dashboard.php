@@ -26,102 +26,138 @@ try {
     <title>Admin Dashboard - CV Submissions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #e0e0e0;
+            --hover-color: #f5f5f5;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --badge-opacity: 0.9;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.2s ease;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 18px 0;
+            box-shadow: var(--header-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .header h1 {
-            font-size: 1.8rem;
-            font-weight: 300;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
         .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 8px 16px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
-            transition: background 0.3s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
         .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background-color: var(--hover-color);
+            border-color: var(--text-color);
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 1400px;
+            margin: 32px auto;
+            padding: 0 24px;
         }
 
         .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
+            background: var(--bg-color);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
 
         .stat-card h3 {
-            color: #667eea;
             font-size: 2rem;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .stat-card p {
-            color: #666;
+            opacity: 0.7;
             font-size: 0.9rem;
         }
 
         .table-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
             overflow: hidden;
         }
 
         .table-header {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .table-header h2 {
-            color: #333;
-            font-size: 1.5rem;
-            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .table-responsive {
@@ -131,93 +167,131 @@ try {
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 800px;
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 16px 24px;
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background: #f8f9fa;
             font-weight: 600;
-            color: #495057;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        tr:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
         }
 
         tr:hover {
-            background: #f8f9fa;
+            background-color: var(--hover-color);
         }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            opacity: var(--badge-opacity);
         }
 
         .status-pending {
-            background: #fff3cd;
-            color: #856404;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
         }
 
         .status-paid {
-            background: #d4edda;
-            color: #155724;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
         }
 
         .status-failed {
-            background: #f8d7da;
-            color: #721c24;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
         }
 
         .status-completed {
-            background: #d1ecf1;
-            color: #0c5460;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
         }
 
         .view-btn {
-            background: #667eea;
-            color: white;
+            background: transparent;
+            color: var(--text-color);
             padding: 6px 12px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
             font-size: 0.8rem;
-            transition: background 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
         .view-btn:hover {
-            background: #5a6fd8;
+            background-color: var(--hover-color);
+            border-color: var(--text-color);
         }
 
         .no-data {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px 20px;
         }
 
         .no-data i {
             font-size: 3rem;
-            color: #ddd;
+            opacity: 0.2;
             margin-bottom: 20px;
+        }
+
+        .no-data h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .no-data p {
+            opacity: 0.6;
         }
 
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
-                gap: 15px;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
             }
             
             .stats-cards {
                 grid-template-columns: 1fr;
             }
             
-            .table-responsive {
-                font-size: 0.9rem;
+            th, td {
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
             }
             
-            th, td {
-                padding: 8px 10px;
+            .stat-card {
+                padding: 20px;
+            }
+            
+            .table-header {
+                padding: 16px;
             }
         }
     </style>
@@ -225,9 +299,9 @@ try {
 <body>
     <div class="header">
         <div class="header-content">
-            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
-            <div>
-                <span>Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
+            <h1><i class="fas fa-columns"></i> Dashboard</h1>
+            <div class="header-actions">
+                <span class="welcome-text">Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
                 <a href="logout.php" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
@@ -259,7 +333,7 @@ try {
         <!-- Submissions Table -->
         <div class="table-container">
             <div class="table-header">
-                <h2><i class="fas fa-list"></i> CV Submissions</h2>
+                <h2><i class="fas fa-file-alt"></i> CV Submissions</h2>
             </div>
             
             <div class="table-responsive">
