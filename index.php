@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Apply 15% increase for CV services when turnaround time is selected
                 if (isset($_POST['turnaround_time']) && !empty($_POST['turnaround_time'])) {
                     if (strpos($work_experience, 'CV') !== false || strpos($work_experience, 'Cover Letter') !== false) {
-                        $amount = round($amount * 1.15);
+                        $amount = round($amount * 1.5); // 15% = 1.5x
                     }
                 }
             }
@@ -866,14 +866,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="pricing-note">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Pricing Note:</strong> CV and Cover Letter services include a 15% express service fee when a turnaround time is selected.
+                        <strong>Pricing Note:</strong> CV and Cover Letter services are charged at 1.5x the base rate when a turnaround time is selected.
                     </div>
 
                     <div id="amountDisplay" class="amount-display" style="display: none;">
                         <div class="amount-breakdown">
                             <div class="base-amount">Base Amount: <span id="baseAmount">0</span> KES</div>
                             <div id="increaseInfo" class="increase-info" style="display: none;">
-                                <i class="fas fa-plus"></i> 15% Express Service Fee: <span id="increaseAmount">0</span> KES
+                                <i class="fas fa-times"></i> 1.5x Express Service Rate: <span id="increaseAmount">0</span> KES
                             </div>
                             <div class="total-amount">Total Amount: <span id="totalAmount">0</span> KES</div>
                         </div>
@@ -940,10 +940,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (turnaroundTime) {
                         // Apply 15% increase for CV services when turnaround time is selected
                         if (select.value.includes('CV') || select.value.includes('Cover Letter')) {
-                            const increaseAmount = Math.round(baseAmount * 0.15);
-                            finalAmount = baseAmount + increaseAmount;
+                            finalAmount = Math.round(baseAmount * 1.5); // 15% = 1.5x
                             
                             // Show increase info
+                            const increaseAmount = finalAmount - baseAmount;
                             increaseAmountSpan.textContent = increaseAmount.toLocaleString();
                             increaseInfo.style.display = 'block';
                             
