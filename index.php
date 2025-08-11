@@ -854,10 +854,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="budget_range">Budget Range (Optional)</label>
                         <input type="text" id="budget_range" name="budget_range" class="form-control" placeholder="e.g., KES 3,000-5,000">
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Payment Section -->
