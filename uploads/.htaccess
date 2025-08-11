@@ -1,0 +1,21 @@
+# Prevent direct access to uploaded files
+<Files "*">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow access only from the admin panel
+<Files "*.pdf">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "*.doc">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "*.docx">
+    Order Allow,Deny
+    Allow from all
+</Files>

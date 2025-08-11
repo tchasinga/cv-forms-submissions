@@ -4,6 +4,11 @@ require_once 'config.php';
 $message = '';
 $messageType = '';
 
+// Create uploads directory if it doesn't exist
+if (!file_exists('uploads')) {
+    mkdir('uploads', 0777, true);
+}
+
 // Create database table if not exists
 $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,10 +31,10 @@ $sql = "CREATE TABLE IF NOT EXISTS cv_submissions (
     ),
     target_job_role VARCHAR(255),
     cv_service_required VARCHAR(255),
-    current_cv_filename LONGBLOB,
+    current_cv_filename VARCHAR(255),
     payment_status ENUM('Pending', 'Paid', 'Failed', 'completed') DEFAULT 'Pending',
     amount_paid VARCHAR(200),
-    job_description_filename LONGBLOB,
+    job_description_filename VARCHAR(255),
     turnaround_time ENUM('24–48 hours (Express)', '3–5 business days', '1 week'),
     budget_range VARCHAR(100),
     additional_notes TEXT,
@@ -49,22 +54,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $current_cv_filename = '';
         $job_description_filename = '';
 
-        if (isset($_FILES['current_cv']) && $_FILES['current_cv']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = 'uploads/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+        // Create uploads directory if it doesn't exist
+        $upload_dir = 'uploads/';
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0777, true)) {
+                throw new Exception("Failed to create uploads directory");
             }
-            $current_cv_filename = time() . '_' . $_FILES['current_cv']['name'];
-            move_uploaded_file($_FILES['current_cv']['tmp_name'], $upload_dir . $current_cv_filename);
         }
 
-        if (isset($_FILES['job_description']) && $_FILES['job_description']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = 'uploads/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+        // Ensure directory is writable
+        if (!is_writable($upload_dir)) {
+            chmod($upload_dir, 0777);
+            if (!is_writable($upload_dir)) {
+                throw new Exception("Uploads directory is not writable");
             }
-            $job_description_filename = time() . '_' . $_FILES['job_description']['name'];
-            move_uploaded_file($_FILES['job_description']['tmp_name'], $upload_dir . $job_description_filename);
+        }
+
+        // Process CV file upload
+        if (isset($_FILES['current_cv']) && $_FILES['current_cv']['error'] === UPLOAD_ERR_OK) {
+            $allowed_types = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            $file_type = $_FILES['current_cv']['type'];
+            $file_ext = strtolower(pathinfo($_FILES['current_cv']['name'], PATHINFO_EXTENSION));
+
+            if (in_array($file_type, $allowed_types) && in_array($file_ext, ['pdf', 'doc', 'docx'])) {
+                $current_cv_filename = uniqid('cv_', true) . '.' . $file_ext;
+                $upload_path = $upload_dir . $current_cv_filename;
+
+                if (!move_uploaded_file($_FILES['current_cv']['tmp_name'], $upload_path)) {
+                    $error_info = error_get_last();
+                    $tmp_file_exists = file_exists($_FILES['current_cv']['tmp_name']);
+                    $upload_dir_writable = is_writable($upload_dir);
+                    $error_msg = "Failed to upload CV file. ";
+                    $error_msg .= "Temp file exists: " . ($tmp_file_exists ? 'Yes' : 'No') . ". ";
+                    $error_msg .= "Upload dir writable: " . ($upload_dir_writable ? 'Yes' : 'No') . ". ";
+                    $error_msg .= "Error: " . ($error_info['message'] ?? 'Unknown error');
+                    throw new Exception($error_msg);
+                }
+            } else {
+                throw new Exception("Invalid file type for CV. Only PDF, DOC, and DOCX files are allowed.");
+            }
+        }
+
+        // Process Job Description file upload
+        if (isset($_FILES['job_description']) && $_FILES['job_description']['error'] === UPLOAD_ERR_OK) {
+            $allowed_types = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            $file_type = $_FILES['job_description']['type'];
+            $file_ext = strtolower(pathinfo($_FILES['job_description']['name'], PATHINFO_EXTENSION));
+
+            if (in_array($file_type, $allowed_types) && in_array($file_ext, ['pdf', 'doc', 'docx'])) {
+                $job_description_filename = uniqid('jd_', true) . '.' . $file_ext;
+                $upload_path = $upload_dir . $job_description_filename;
+
+                if (!move_uploaded_file($_FILES['job_description']['tmp_name'], $upload_path)) {
+                    $error_info = error_get_last();
+                    $tmp_file_exists = file_exists($_FILES['job_description']['tmp_name']);
+                    $upload_dir_writable = is_writable($upload_dir);
+                    $error_msg = "Failed to upload job description file. ";
+                    $error_msg .= "Temp file exists: " . ($tmp_file_exists ? 'Yes' : 'No') . ". ";
+                    $error_msg .= "Upload dir writable: " . ($upload_dir_writable ? 'Yes' : 'No') . ". ";
+                    $error_msg .= "Error: " . ($error_info['message'] ?? 'Unknown error');
+                    throw new Exception($error_msg);
+                }
+            } else {
+                throw new Exception("Invalid file type for job description. Only PDF, DOC, and DOCX files are allowed.");
+            }
         }
 
         // Extract amount from work_experience selection
@@ -89,22 +142,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
-            ':full_name' => $_POST['full_name'],
-            ':email' => $_POST['email'],
-            ':phone' => $_POST['phone'],
-            ':preferred_contact' => $_POST['preferred_contact'],
-            ':current_location' => $_POST['current_location'],
-            ':education_level' => $_POST['education_level'],
-            ':field_of_study' => $_POST['field_of_study'],
-            ':current_job_title' => $_POST['current_job_title'],
-            ':work_experience' => $work_experience,
-            ':target_job_role' => $_POST['target_job_role'],
-            ':cv_service_required' => $_POST['cv_service_required'],
+            ':full_name' => htmlspecialchars($_POST['full_name']),
+            ':email' => filter_var($_POST['email'], FILTER_SANITIZE_EMAIL),
+            ':phone' => htmlspecialchars($_POST['phone']),
+            ':preferred_contact' => htmlspecialchars($_POST['preferred_contact']),
+            ':current_location' => htmlspecialchars($_POST['current_location']),
+            ':education_level' => htmlspecialchars($_POST['education_level']),
+            ':field_of_study' => htmlspecialchars($_POST['field_of_study']),
+            ':current_job_title' => htmlspecialchars($_POST['current_job_title']),
+            ':work_experience' => htmlspecialchars($work_experience),
+            ':target_job_role' => htmlspecialchars($_POST['target_job_role']),
+            ':cv_service_required' => htmlspecialchars($_POST['cv_service_required']),
             ':current_cv_filename' => $current_cv_filename,
             ':job_description_filename' => $job_description_filename,
-            ':turnaround_time' => $_POST['turnaround_time'],
-            ':budget_range' => $_POST['budget_range'],
-            ':additional_notes' => $_POST['additional_notes'],
+            ':turnaround_time' => htmlspecialchars($_POST['turnaround_time']),
+            ':budget_range' => htmlspecialchars($_POST['budget_range']),
+            ':additional_notes' => htmlspecialchars($_POST['additional_notes']),
             ':amount_paid' => $amount,
             ':payment_status' => 'Pending'
         ]);
@@ -182,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Thank you! Your CV submission has been received successfully. Please proceed to payment.";
             $messageType = 'success';
         }
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
         $messageType = 'error';
     }
@@ -197,7 +250,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV Form Submission</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #6c5ce7;
+            --success-color: #00b894;
+            --error-color: #d63031;
+            --warning-color: #fdcb6e;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #2d3436;
+            --border-color: #dfe6e9;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -205,40 +272,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            width: 100%;
-            padding-top: 50px;
-            padding-bottom: 50px;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
         }
 
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            width: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             padding: 40px;
             text-align: center;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
         }
 
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            font-weight: lighter;
+            font-weight: 600;
         }
 
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
-            font-weight: lighter;
+            font-weight: 300;
         }
 
         .form-container {
@@ -247,33 +313,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .message {
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
         }
 
         .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: rgba(214, 48, 49, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
         }
 
         .form-section {
             margin-bottom: 30px;
             padding: 25px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
+            background: var(--light-color);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-section:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
         .form-section h3 {
-            color: #333;
+            color: var(--primary-color);
             margin-bottom: 20px;
             font-size: 1.3rem;
             display: flex;
@@ -288,29 +362,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
+            font-weight: 500;
+            color: var(--dark-color);
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="tel"],
-        .form-group select,
-        .form-group textarea {
+        .form-control {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             font-size: 16px;
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
+            background-color: white;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-control:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
         }
 
         .radio-group {
@@ -323,6 +398,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
         }
 
         .checkbox-group {
@@ -335,22 +418,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px;
+            padding: 12px;
             background: white;
             border-radius: 8px;
-            border: 1px solid #e1e5e9;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .checkbox-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: var(--primary-color);
+            background: rgba(74, 107, 255, 0.05);
         }
 
         .checkbox-option input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #667eea;
+            accent-color: var(--primary-color);
+            cursor: pointer;
         }
 
         .file-upload {
@@ -368,106 +453,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .file-upload-label {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             padding: 15px;
-            background: #f8f9fa;
-            border: 2px dashed #667eea;
-            border-radius: 10px;
+            background: rgba(74, 107, 255, 0.05);
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .file-upload-label:hover {
-            background: #e8f0fe;
-            border-color: #4a90e2;
+            background: rgba(74, 107, 255, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .file-upload-label i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .file-name {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: 500;
         }
 
         .payment-section {
-            background: #f0f8ff;
-            border-left: 5px solid #4a90e2;
+            background: rgba(74, 107, 255, 0.05);
+            border-left: 4px solid var(--success-color);
         }
 
         .amount-display {
             font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c3e50;
+            font-weight: 600;
+            color: var(--success-color);
             margin: 15px 0;
-            padding: 10px;
-            background: #e8f4fc;
+            padding: 15px;
+            background: white;
             border-radius: 8px;
             text-align: center;
+            border: 1px solid var(--border-color);
         }
 
-        .pay-now-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .pay-now-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3);
-        }
-
-        .payment-method {
-            margin-top: 20px;
-        }
-
-        .payment-method label {
-            display: flex;
+        .btn {
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .payment-method input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #4a90e2;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 50px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 20px;
+            text-decoration: none;
         }
 
-        .submit-btn:hover {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(74, 107, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #00cec9 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
         }
 
         .required {
-            color: #e74c3c;
+            color: var(--error-color);
+            font-weight: bold;
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
             .container {
-                max-width: 100%;
-                width: 100%;
+                border-radius: 0;
             }
 
             .header {
                 padding: 30px 20px;
-
             }
 
             .header h1 {
@@ -487,46 +571,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-section:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .form-section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .form-section:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .form-section:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .form-section:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .form-section:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .form-section:nth-child(7) {
+            animation-delay: 0.7s;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-file-alt"></i> CV Form Submission</h1>
-            <p>Complete the form below to get started with your professional CV services</p>
+            <h1><i class="fas fa-file-alt"></i> Professional CV Services</h1>
+            <p>Complete the form below to get started with your career transformation</p>
         </div>
 
         <div class="form-container">
             <?php if ($message): ?>
-                <div class="message <?php echo $messageType; ?>">
-                    <?php echo $message; ?>
+                <div class="message <?php echo $messageType === 'success' ? 'success' : 'error'; ?>">
+                    <i class="fas <?php echo $messageType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                    <?php echo htmlspecialchars($message); ?>
                 </div>
             <?php endif; ?>
 
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" id="cvForm">
                 <!-- Personal Information -->
                 <div class="form-section">
-                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    <h3><i class="fas fa-user-tie"></i> Personal Information</h3>
 
                     <div class="form-group">
                         <label for="full_name">Full Name <span class="required">*</span></label>
-                        <input type="text" id="full_name" name="full_name" required>
+                        <input type="text" id="full_name" name="full_name" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email Address <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Preferred Contact Method</label>
-                        <select id="preferred_contact" name="preferred_contact">
+                        <label for="preferred_contact">Preferred Contact Method <span class="required">*</span></label>
+                        <select id="preferred_contact" name="preferred_contact" class="form-control" required>
                             <option value="">Select Preferred Contact Method</option>
                             <option value="Email">Email</option>
                             <option value="Phone">Phone</option>
@@ -536,7 +666,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="current_location">Current Location (City & Country)</label>
-                        <input type="text" id="current_location" name="current_location" placeholder="e.g., Kenya, Nairobi">
+                        <input type="text" id="current_location" name="current_location" class="form-control" placeholder="e.g., Nairobi, Kenya">
                     </div>
                 </div>
 
@@ -546,12 +676,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="education_level">Highest Level of Education Achieved</label>
-                        <select id="education_level" name="education_level">
+                        <select id="education_level" name="education_level" class="form-control">
                             <option value="">Select Education Level</option>
                             <option value="High School">High School</option>
-                            <option value="Associate's Degree">Associate's Degree</option>
-                            <option value="Bachelor's Degree">Bachelor's Degree</option>
-                            <option value="Master's Degree">Master's Degree</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Higher Diploma">Higher Diploma</option>
+                            <option value="Bachelors">Bachelors</option>
+                            <option value="Masters">Masters</option>
+                            <option value="Past graduate">Past graduate</option>
                             <option value="PhD">PhD</option>
                             <option value="Other">Other</option>
                         </select>
@@ -559,7 +691,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="field_of_study">Field of Study</label>
-                        <input type="text" id="field_of_study" name="field_of_study" placeholder="e.g., Computer Science, Business Administration">
+                        <input type="text" id="field_of_study" name="field_of_study" class="form-control" placeholder="e.g., Computer Science, Business Administration">
                     </div>
                 </div>
 
@@ -569,16 +701,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="current_job_title">Current Job Title (if any)</label>
-                        <input type="text" id="current_job_title" name="current_job_title" placeholder="e.g., Software Developer">
+                        <input type="text" id="current_job_title" name="current_job_title" class="form-control" placeholder="e.g., Software Developer">
                     </div>
 
                     <div class="form-group">
-                        <label>Years of Work Experience</label>
-                        <select id="work_experience" name="work_experience" required onchange="updateAmount()">
-                            <option value="">Select Work Experience</option>
-                            <option value="0–5 years KES 3,000">0–5 years KES 3,000</option>
-                            <option value="6 – 15 years KES 6,000">6 – 15 years KES 6,000</option>
-                            <option value="Above 15 years KES 8,000">Above 15 years KES 8,000</option>
+                        <label for="work_experience">CV Service Required <span class="required">*</span></label>
+                        <select id="work_experience" name="work_experience" class="form-control" required onchange="updateAmount()">
+                            <option value="">Select one a serveice</option>
+                            <option value="CV 0–5 years KES 3,000">CV 0–5 years KES 3,000</option>
+                            <option value="CV 6– 15 years KES 6,000">CV 6 – 15 years KES 6,000</option>
+                            <option value="CV Above 15 years KES 8,000">CV Above 15 years KES 8,000</option>
                             <option value="Stand Alone cover letter KES 1,500 (Without CV)">Stand Alone cover letter KES 1,500 (Without CV)</option>
                             <option value="Standard Fees KES 4,000">Standard Fees KES 4,000</option>
                             <option value="Interview Preparation (1Hr Zoom Meeting) KES 4,000">Interview Preparation (1Hr Zoom Meeting) KES 4,000</option>
@@ -588,37 +720,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="target_job_role">Target Job Role / Industry</label>
-                        <input type="text" id="target_job_role" name="target_job_role" placeholder="e.g., Senior Software Engineer, Marketing Manager">
+                        <input type="text" id="target_job_role" name="target_job_role" class="form-control" placeholder="e.g., Senior Software Engineer, Marketing Manager">
                     </div>
-                </div>
-
-                <!-- Payment Section -->
-                <div class="form-section payment-section">
-                    <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
-
-                    <div id="amountDisplay" class="amount-display" style="display: none;">
-                        Total Amount: <span id="totalAmount">0</span> KES
-                    </div>
-
-                    <div class="payment-method">
-                        <label>
-                            <input type="radio" name="payment_method" value="MPESA" checked>
-                            <i class="fas fa-mobile-alt"></i> M-Pesa
-                        </label>
-                        <p>You will receive a payment request on your phone after submitting the form.</p>
-                    </div>
-
-                    <input type="hidden" name="initiate_payment" value="1">
-                    <!-- <button type="submit" class="pay-now-btn" id="payNowBtn" style="display: none;">
-                        <i class="fas fa-lock"></i> Pay Now
-                    </button> -->
                 </div>
 
                 <!-- CV Service Required -->
-                <div class="form-section">
-                    <h3><i class="fas fa-tools"></i> CV Service Required (select all that apply)</h3>
+                <!-- <div class="form-section">
+                    <h3><i class="fas fa-tools"></i> CV Service Required</h3>
                     <div class="form-group">
-                        <select name="cv_service_required" id="cv_service_required">
+                        <label for="cv_service_required">Select Service <span class="required">*</span></label>
+                        <select id="cv_service_required" name="cv_service_required" class="form-control" required>
                             <option value="">Select CV Service Required</option>
                             <option value="CV Writing (Fresh Graduate)">CV Writing (Fresh Graduate)</option>
                             <option value="CV Update (Professional)">CV Update (Professional)</option>
@@ -629,29 +740,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="CV + Cover Letter + LinkedIn (Combo Package)">CV + Cover Letter + LinkedIn (Combo Package)</option>
                         </select>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Supporting Documents -->
                 <div class="form-section">
-                    <h3><i class="fas fa-file-upload"></i> Supporting Documents</h3>
+                    <h3><i class="fas fa-paperclip"></i> Supporting Documents</h3>
 
                     <div class="form-group">
-                        <label for="current_cv">Upload Your Current CV (if any)</label>
+                        <label>Upload Your Current CV (if any)</label>
                         <div class="file-upload">
                             <input type="file" id="current_cv" name="current_cv" accept=".pdf,.doc,.docx">
                             <label for="current_cv" class="file-upload-label">
-                                <i class="fas fa-cloud-upload-alt"></i> Choose file (PDF, DOC, DOCX)
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose CV file (PDF, DOC, DOCX)</span>
                             </label>
+                            <div id="currentCvName" class="file-name"></div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="job_description">Upload Job Description (if targeting a specific job)</label>
+                        <label>Upload Job Description (if targeting a specific job)</label>
                         <div class="file-upload">
                             <input type="file" id="job_description" name="job_description" accept=".pdf,.doc,.docx">
                             <label for="job_description" class="file-upload-label">
-                                <i class="fas fa-cloud-upload-alt"></i> Choose file (PDF, DOC, DOCX)
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose Job Description file (PDF, DOC, DOCX)</span>
                             </label>
+                            <div id="jobDescName" class="file-name"></div>
                         </div>
                     </div>
                 </div>
@@ -661,10 +776,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3><i class="fas fa-clock"></i> Timeline & Budget</h3>
 
                     <div class="form-group">
-                        <label>Preferred Turnaround Time</label>
+                        <label>Preferred Turnaround Time <span class="required">*</span></label>
                         <div class="radio-group">
                             <div class="radio-option">
-                                <input type="radio" id="turnaround_express" name="turnaround_time" value="24–48 hours (Express)">
+                                <input type="radio" id="turnaround_express" name="turnaround_time" value="24–48 hours (Express)" required>
                                 <label for="turnaround_express">24–48 hours (Express)</label>
                             </div>
                             <div class="radio-option">
@@ -680,23 +795,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="budget_range">Budget Range (Optional)</label>
-                        <input type="text" id="budget_range" name="budget_range" placeholder="e.g., ksh1000-2000, ksh1500-2500, ksh3000 etc...">
+                        <input type="text" id="budget_range" name="budget_range" class="form-control" placeholder="e.g., KES 3,000-5,000">
                     </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="form-section payment-section">
+                    <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
+
+                    <div id="amountDisplay" class="amount-display" style="display: none;">
+                        Total Amount: <span id="totalAmount">0</span> KES
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Method <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="mpesa" name="payment_method" value="MPESA" checked required>
+                                <label for="mpesa"><i class="fas fa-mobile-alt"></i> M-Pesa</label>
+                            </div>
+                        </div>
+                        <p class="text-muted">You will receive a payment request on your phone after submitting the form.</p>
+                    </div>
+
+                    <input type="hidden" name="initiate_payment" value="1">
                 </div>
 
                 <!-- Additional Notes -->
                 <div class="form-section">
-                    <h3><i class="fas fa-sticky-note"></i> Additional Notes/Instructions</h3>
+                    <h3><i class="fas fa-edit"></i> Additional Notes</h3>
 
                     <div class="form-group">
-                        <label for="additional_notes">Additional Notes/Instructions</label>
-                        <textarea id="additional_notes" name="additional_notes" rows="5" placeholder="Please provide any additional information, specific requirements, or special instructions..."></textarea>
+                        <label for="additional_notes">Special Instructions/Requirements</label>
+                        <textarea id="additional_notes" name="additional_notes" class="form-control" placeholder="Please provide any additional information, specific requirements, or special instructions..."></textarea>
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> Submit CV Form
-                </button>
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Application
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -706,7 +845,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function updateAmount() {
             const select = document.getElementById('work_experience');
             const amountDisplay = document.getElementById('amountDisplay');
-            const payNowBtn = document.getElementById('payNowBtn');
             const totalAmountSpan = document.getElementById('totalAmount');
 
             if (select.value) {
@@ -715,38 +853,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (matches) {
                     totalAmountSpan.textContent = matches[1];
                     amountDisplay.style.display = 'block';
-                    payNowBtn.style.display = 'block';
                 }
             } else {
                 amountDisplay.style.display = 'none';
-                payNowBtn.style.display = 'none';
             }
         }
 
         // File upload preview
-        document.querySelectorAll('input[type="file"]').forEach(input => {
-            input.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const label = this.nextElementSibling;
-                    label.innerHTML = `<i class="fas fa-check"></i> ${file.name}`;
-                    label.style.background = '#d4edda';
-                    label.style.color = '#155724';
-                }
-            });
+        document.getElementById('current_cv').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileNameDisplay = document.getElementById('currentCvName');
+
+            if (file) {
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+                fileNameDisplay.style.color = 'var(--success-color)';
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        });
+
+        document.getElementById('job_description').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileNameDisplay = document.getElementById('jobDescName');
+
+            if (file) {
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+                fileNameDisplay.style.color = 'var(--success-color)';
+            } else {
+                fileNameDisplay.textContent = '';
+            }
         });
 
         // Form validation
         document.getElementById('cvForm').addEventListener('submit', function(e) {
-            const requiredFields = this.querySelectorAll('[required]');
             let isValid = true;
+            const requiredFields = this.querySelectorAll('[required]');
 
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
-                    field.style.borderColor = '#e74c3c';
+                    field.style.borderColor = 'var(--error-color)';
                     isValid = false;
+
+                    // Scroll to the first invalid field
+                    if (isValid === false) {
+                        field.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        isValid = true; // Prevent multiple scrolls
+                    }
                 } else {
-                    field.style.borderColor = '#e1e5e9';
+                    field.style.borderColor = 'var(--border-color)';
                 }
             });
 
@@ -754,6 +911,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 e.preventDefault();
                 alert('Please fill in all required fields marked with *');
             }
+        });
+
+        // Initialize form with any existing values (for edit scenarios)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger amount display if already selected
+            updateAmount();
+
+            // Add animation class to form sections
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.animationDelay = `${0.1 + (index * 0.1)}s`;
+            });
         });
     </script>
 </body>
