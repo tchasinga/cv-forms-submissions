@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Apply 15% increase for CV services when turnaround time is selected
                 if (isset($_POST['turnaround_time']) && !empty($_POST['turnaround_time'])) {
-                    if (strpos($work_experience, 'CV') !== false || strpos($work_experience, 'Cover Letter') !== false) {
+                    if (strpos($work_experience, 'years') !== false || strpos($work_experience, 'Cover Letter') !== false) {
                         $amount = round($amount * 1.5); // 15% = 1.5x
                     }
                 }
@@ -768,10 +768,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="work_experience">CV Service Required <span class="required">*</span></label>
                         <select id="work_experience" name="work_experience" class="form-control" required onchange="updateAmount()">
-                            <option value="">Select one a serveice</option>
-                            <option value="CV 0–5 years KES 3,000">CV 0–5 years KES 3,000</option>
-                            <option value="CV 6– 15 years KES 6,000">CV 6 – 15 years KES 6,000</option>
-                            <option value="CV Above 15 years KES 8,000">CV Above 15 years KES 8,000</option>
+                            <option value="">Select one a service</option>
+                            <option value="0–5 years KES 3,000">CV 0–5 years KES 3,000</option>
+                            <option value="6 – 15 years KES 6,000">CV 6 – 15 years KES 6,000</option>
+                            <option value="Above 15 years KES 8,000">CV Above 15 years KES 8,000</option>
                             <option value="Stand Alone cover letter KES 1,500 (Without CV)">Stand Alone cover letter KES 1,500 (Without CV)</option>
                             <option value="Standard Fees KES 4,000">Standard Fees KES 4,000</option>
                             <option value="Interview Preparation (1Hr Zoom Meeting) KES 4,000">Interview Preparation (1Hr Zoom Meeting) KES 4,000</option>
@@ -939,7 +939,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (turnaroundTime) {
                         // Apply 15% increase for CV services when turnaround time is selected
-                        if (select.value.includes('CV') || select.value.includes('Cover Letter')) {
+                        if (select.value.includes('years') || select.value.includes('Cover Letter')) {
                             finalAmount = Math.round(baseAmount * 1.5); // 15% = 1.5x
                             
                             // Show increase info

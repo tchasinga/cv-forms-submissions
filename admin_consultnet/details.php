@@ -370,7 +370,7 @@ try {
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">Work Experience & Pricing</div>
-                            <div class="info-value"><?php echo htmlspecialchars($submission['work_experience']); ?></div>
+                            <div class="info-value">CV <?php echo htmlspecialchars($submission['work_experience']); ?></div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">CV Service Required</div>
