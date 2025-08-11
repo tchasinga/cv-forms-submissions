@@ -380,10 +380,10 @@ try {
                             <div class="info-label">Turnaround Time</div>
                             <div class="info-value"><?php echo htmlspecialchars($submission['turnaround_time']); ?></div>
                         </div>
-                        <div class="info-item">
+                        <!-- <div class="info-item">
                             <div class="info-label">Budget Range</div>
                             <div class="info-value"><?php echo htmlspecialchars($submission['budget_range']); ?></div>
-                        </div>
+                        </div> -->
                         <div class="info-item">
                             <div class="info-label">Amount Paid</div>
                             <div class="info-value">KES <?php echo number_format($submission['amount_paid'], 2); ?></div>

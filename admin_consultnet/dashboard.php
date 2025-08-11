@@ -352,7 +352,6 @@ try {
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Current Job</th>
-                                <th>Service</th>
                                 <th>Payment Status</th>
                                 <th>Submission Date</th>
                                 <th>Action</th>
@@ -366,7 +365,6 @@ try {
                                     <td><?php echo htmlspecialchars($submission['email']); ?></td>
                                     <td><?php echo htmlspecialchars($submission['phone']); ?></td>
                                     <td><?php echo htmlspecialchars($submission['current_job_title']); ?></td>
-                                    <td><?php echo htmlspecialchars($submission['work_experience']); ?></td>
                                     <td>
                                         <span class="status-badge status-<?php echo strtolower($submission['payment_status']); ?>">
                                             <?php echo htmlspecialchars($submission['payment_status']); ?>
