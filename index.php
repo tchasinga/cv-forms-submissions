@@ -123,8 +123,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Extract amount from work_experience selection
         $work_experience = $_POST['work_experience'];
         $amount = 0;
-        if (preg_match('/KES (\d+,\d+)/', $work_experience, $matches)) {
-            $amount = (int)str_replace(',', '', $matches[1]);
+        
+        // Use the calculated amount from the hidden field if available
+        if (isset($_POST['calculated_amount']) && !empty($_POST['calculated_amount'])) {
+            $amount = (int)$_POST['calculated_amount'];
+        } else {
+            // Fallback to extracting from work_experience if hidden field is not available
+            if (preg_match('/KES (\d+,\d+)/', $work_experience, $matches)) {
+                $amount = (int)str_replace(',', '', $matches[1]);
+                
+                // Apply 15% increase for CV services when turnaround time is selected
+                if (isset($_POST['turnaround_time']) && !empty($_POST['turnaround_time'])) {
+                    if (strpos($work_experience, 'CV') !== false || strpos($work_experience, 'Cover Letter') !== false) {
+                        $amount = round($amount * 1.15);
+                    }
+                }
+            }
         }
 
         // Prepare SQL statement
@@ -489,15 +503,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .amount-display {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--success-color);
             margin: 15px 0;
-            padding: 15px;
+            padding: 20px;
             background: white;
             border-radius: 8px;
             text-align: center;
             border: 1px solid var(--border-color);
+        }
+        
+        .amount-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .base-amount {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .increase-info {
+            color: var(--warning-color);
+            font-weight: 500;
+            background: rgba(253, 203, 110, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--warning-color);
+        }
+        
+        .total-amount {
+            color: var(--success-color);
+            font-weight: 600;
+            font-size: 1.2rem;
+            border-top: 2px solid var(--border-color);
+            padding-top: 10px;
+            margin-top: 5px;
+        }
+        
+        .pricing-note {
+            background: rgba(74, 107, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pricing-note i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
         }
 
         .btn {
@@ -803,9 +864,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-section payment-section">
                     <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
 
-                    <div id="amountDisplay" class="amount-display" style="display: none;">
-                        Total Amount: <span id="totalAmount">0</span> KES
+                    <div class="pricing-note">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Pricing Note:</strong> CV and Cover Letter services include a 15% express service fee when a turnaround time is selected.
                     </div>
+
+                    <div id="amountDisplay" class="amount-display" style="display: none;">
+                        <div class="amount-breakdown">
+                            <div class="base-amount">Base Amount: <span id="baseAmount">0</span> KES</div>
+                            <div id="increaseInfo" class="increase-info" style="display: none;">
+                                <i class="fas fa-plus"></i> 15% Express Service Fee: <span id="increaseAmount">0</span> KES
+                            </div>
+                            <div class="total-amount">Total Amount: <span id="totalAmount">0</span> KES</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden field to store the calculated amount -->
+                    <input type="hidden" id="calculatedAmount" name="calculated_amount" value="0">
 
                     <div class="form-group">
                         <label>Payment Method <span class="required">*</span></label>
@@ -851,11 +926,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Extract amount from the selected option
                 const matches = select.value.match(/KES (\d+,\d+)/);
                 if (matches) {
-                    totalAmountSpan.textContent = matches[1];
+                    let baseAmount = parseInt(matches[1].replace(/,/g, ''));
+                    
+                    // Update base amount display
+                    document.getElementById('baseAmount').textContent = matches[1];
+                    
+                    // Check if turnaround time is selected
+                    const turnaroundTime = document.querySelector('input[name="turnaround_time"]:checked');
+                    let finalAmount = baseAmount;
+                    const increaseInfo = document.getElementById('increaseInfo');
+                    const increaseAmountSpan = document.getElementById('increaseAmount');
+                    
+                    if (turnaroundTime) {
+                        // Apply 15% increase for CV services when turnaround time is selected
+                        if (select.value.includes('CV') || select.value.includes('Cover Letter')) {
+                            const increaseAmount = Math.round(baseAmount * 0.15);
+                            finalAmount = baseAmount + increaseAmount;
+                            
+                            // Show increase info
+                            increaseAmountSpan.textContent = increaseAmount.toLocaleString();
+                            increaseInfo.style.display = 'block';
+                            
+                            totalAmountSpan.textContent = finalAmount.toLocaleString();
+                        } else {
+                            totalAmountSpan.textContent = matches[1];
+                            increaseInfo.style.display = 'none';
+                        }
+                    } else {
+                        totalAmountSpan.textContent = matches[1];
+                        increaseInfo.style.display = 'none';
+                    }
+                    
+                    // Update the hidden field with the calculated amount
+                    document.getElementById('calculatedAmount').value = finalAmount;
                     amountDisplay.style.display = 'block';
+                    
+                    // Debug logging
+                    console.log('Service:', select.value);
+                    console.log('Base Amount:', baseAmount);
+                    console.log('Final Amount:', finalAmount);
+                    console.log('Turnaround Time:', turnaroundTime ? turnaroundTime.value : 'None');
                 }
             } else {
                 amountDisplay.style.display = 'none';
+                // Reset hidden field
+                document.getElementById('calculatedAmount').value = '0';
             }
         }
 
@@ -917,6 +1032,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.addEventListener('DOMContentLoaded', function() {
             // Trigger amount display if already selected
             updateAmount();
+
+            // Add event listeners for turnaround time radio buttons
+            const turnaroundRadios = document.querySelectorAll('input[name="turnaround_time"]');
+            turnaroundRadios.forEach(radio => {
+                radio.addEventListener('change', updateAmount);
+            });
 
             // Add animation class to form sections
             const sections = document.querySelectorAll('.form-section');
