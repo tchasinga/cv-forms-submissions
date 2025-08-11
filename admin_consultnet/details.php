@@ -372,10 +372,10 @@ try {
                             <div class="info-label">Work Experience & Pricing</div>
                             <div class="info-value">CV <?php echo htmlspecialchars($submission['work_experience']); ?></div>
                         </div>
-                        <div class="info-item">
+                        <!-- <div class="info-item">
                             <div class="info-label">CV Service Required</div>
                             <div class="info-value"><?php echo htmlspecialchars($submission['cv_service_required']); ?></div>
-                        </div>
+                        </div> -->
                         <div class="info-item">
                             <div class="info-label">Turnaround Time</div>
                             <div class="info-value"><?php echo htmlspecialchars($submission['turnaround_time']); ?></div>
