@@ -2,7 +2,7 @@
 require_once 'config.php';
 
 $message = '';
-$messageType = '';
+$messageType = ''
 
 // Create uploads directory if it doesn't exist
 if (!file_exists('uploads')) {
@@ -944,7 +944,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         increaseInfo.style.display = 'none';
                     }
                     
-                    // Update the hidden field with the calculated amount
+                    // Update the hidden field with the calculated amount 
                     document.getElementById('calculatedAmount').value = finalAmount;
                     amountDisplay.style.display = 'block';
                     
