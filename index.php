@@ -178,15 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $submission_id = $pdo->lastInsertId();
 
-        // // Send email to admin
-        // $to = 'admin@example.com';
-        // $subject = 'New CV Submission';
-        // $message = 'A new CV submission has been received. Please review it.';
-        // $headers = 'From: webmaster@example.com' . "\r\n" .
-        //     'Reply-To: webmaster@example.com' . "\r\n" .
-        //     'X-Mailer: PHP/' . phpversion();
-        // mail($to, $subject, $message, $headers);
-
         // If form submitted with payment request
         if (isset($_POST['initiate_payment'])) {
             // Process M-Pesa payment
