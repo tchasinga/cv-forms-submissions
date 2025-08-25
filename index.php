@@ -488,6 +488,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: var(--secondary-color);
         }
 
+
+
         .file-upload-label i {
             font-size: 1.2rem;
             color: var(--primary-color);
