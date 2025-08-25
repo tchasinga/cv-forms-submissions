@@ -297,6 +297,12 @@ try {
                 <a href="dashboard.php" class="back-btn">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
+                <form method="POST" action="delete_submission.php" class="delete-form" style="display:inline">
+                    <input type="hidden" name="id" value="<?php echo (int)$submission['id']; ?>">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
                 <a href="logout.php" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>

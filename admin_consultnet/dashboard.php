@@ -403,6 +403,46 @@ try {
             border-color: var(--text-color);
         }
 
+        .delete-btn {
+            background: transparent;
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--hover-color);
+            border-color: var(--text-color);
+        }
+
+        .alerts {
+            margin-bottom: 16px;
+        }
+
+        .alert {
+            background: var(--hover-color);
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .alert-success { border-left-color: #2e7d32; }
+        .alert-error { border-left-color: #c62828; }
+
         .no-data {
             text-align: center;
             padding: 60px 20px;
@@ -505,6 +545,20 @@ try {
     </div>
 
     <div class="container">
+        <div class="alerts">
+            <?php if (!empty($_GET['deleted'])): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Application deleted successfully.</span>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($_GET['error'])): ?>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Unable to process deletion. Please try again.</span>
+                </div>
+            <?php endif; ?>
+        </div>
         <!-- Statistics Cards -->
         <div class="stats-cards">
             <div class="stat-card">
@@ -632,6 +686,12 @@ try {
                                         <a href="details.php?id=<?php echo $submission['id']; ?>" class="view-btn">
                                             <i class="fas fa-eye"></i> View
                                         </a>
+                                        <form method="POST" action="delete_submission.php" class="delete-form" style="display:inline">
+                                            <input type="hidden" name="id" value="<?php echo (int)$submission['id']; ?>">
+                                            <button type="submit" class="delete-btn">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -704,6 +764,16 @@ try {
         if (activeCount > 0) {
             clearBtn.innerHTML = `<i class="fas fa-times"></i> Clear Filters (${activeCount})`;
         }
+
+        // Confirm deletion
+        document.querySelectorAll('.delete-form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                const ok = confirm('Are you sure you want to permanently delete this application? This action cannot be undone.');
+                if (!ok) {
+                    e.preventDefault();
+                }
+            });
+        });
     </script>
 </body>
 </html>
